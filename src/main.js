@@ -2,24 +2,28 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
 import vuetify from './plugins/vuetify'
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
 
 Vue.use(MuseUI)
+Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
+
+import global_ from '@/utils/Global'
+Vue.prototype.GLOBAL = global_
 
 // 导航钩子，全局钩子
 router.beforeEach((to, from, next) => {
   let token = localStorage.getItem('token')
   let isLogin
-  // 若从本地取出的token为空，则未登录。否则登录
   if (!token) {
     isLogin = false
   } else {
     isLogin = true
   }
-  // 如果未登录，则跳转到登录页面
   if (!isLogin) {
     if (to.path !== '/login') {
       return next({ path: '/login' })
@@ -32,6 +36,18 @@ router.beforeEach((to, from, next) => {
     }
     next()
   }
+})
+
+//全局请求拦截
+axios.interceptors.request.use((config) => {
+  //请求的接口不是登录和验证码接口
+  if (['/sysAdmin/login', '/captcha'].indexOf(config.url) === -1) {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = token
+    }
+  }
+  return config
 })
 
 new Vue({
