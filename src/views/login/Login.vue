@@ -21,7 +21,6 @@
       </mu-form>
       <mu-dialog title="Dialog" width="360" :open.sync="openSimple">
         登录成功
-        <mu-button slot="actions" flat color="primary" @click="closeSimpleDialog">Close</mu-button>
       </mu-dialog>
     </mu-container>
     <!--遮罩-->
@@ -124,6 +123,7 @@ export default {
             } else {
               //只有一个角色
               const roleId = res.data.data.admin.roles[0].roleId
+              localStorage.setItem('roleId', roleId)
               alert(roleId)
               this.$router.push({
                 path: '/',
@@ -159,6 +159,7 @@ export default {
     gotoIndex(roleId) {
       //带着用户选择的roleId跳到首页
       alert(roleId)
+      localStorage.setItem('roleId', roleId)
       this.$router.push({
         path: '/',
         query: {

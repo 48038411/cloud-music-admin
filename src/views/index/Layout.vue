@@ -73,7 +73,7 @@
                           <v-icon>{{ subItem.icon }}</v-icon>
                         </v-list-item-icon>
                         <v-list-item-content>
-                          <v-list-item-title class="link" @click="gotoSubPage(subItem.path, index, index1)">{{
+                          <v-list-item-title class="link" @click="gotoSubPage(subItem.path, index, index1, roleId)">{{
                             subItem.title
                           }}</v-list-item-title>
                         </v-list-item-content>
@@ -113,7 +113,6 @@ export default {
   created() {
     //取得前一个页面传过来的roleId
     let roleId = this.$route.query.roleId
-    console.log(roleId)
     //携带roleId和token（全局拦截器已经设置）向后端请求菜单
     this.axios.get(this.GLOBAL.baseUrl + '/sysRole?roleId=' + roleId).then((res) => {
       this.$store.commit('setMenuList', JSON.stringify(res.data.data.menus))
