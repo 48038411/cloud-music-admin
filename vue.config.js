@@ -1,10 +1,11 @@
 module.exports = {
   devServer: {
     host: 'localhost',
-    port: 8090,
+    port: 80,
     https: false,
     open: true,
-    hotOnly: true
+    hotOnly: true,
+    disableHostCheck: true
   },
   outputDir: './dist',
   assetsDir: './assets/',

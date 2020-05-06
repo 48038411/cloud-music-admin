@@ -1,11 +1,14 @@
 <template>
-  <div id="app">
+  <v-app id="app">
     <router-view />
-  </div>
+  </v-app>
 </template>
-
 <style lang="scss">
-.gutter {
-  margin: 5px;
+.link {
+  color: #fff;
+}
+.move {
+  animation-duration: 0.6s;
+  animation-delay: 0.2s;
 }
 </style>

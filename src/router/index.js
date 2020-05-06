@@ -62,6 +62,11 @@ const routes = [
     ]
   },
   {
+    path: '/auth',
+    name: 'Auth',
+    component: () => import('../views/other/Auth.vue')
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('../views/login/Login.vue')
@@ -70,6 +75,11 @@ const routes = [
     path: '/404',
     name: 'Page404',
     component: () => import('../views/other/Page404.vue')
+  },
+  {
+    path: '/dark',
+    name: 'Dark',
+    component: () => import('../views/layout/Dark.vue')
   }
 ]
 

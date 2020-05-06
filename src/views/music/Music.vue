@@ -1,15 +1,18 @@
 <template>
   <div style="width: 100%">
     <div>
-      <mu-text-field
-        v-model="keywords"
-        placeholder="search"
-        @blur.prevent="shows"
-      ></mu-text-field>
-      <mu-button
-        color="primary"
-        @click="search()"
-      >点击搜索</mu-button>
+      <mu-text-field v-model="keywords" placeholder="search" @blur.prevent="shows"></mu-text-field>
+      <v-btn
+        v-for="(item, index) in menus"
+        :key="index"
+        :color="item.icon"
+        class="mr-3"
+        @click="handleClick(item.title)"
+        large
+      >
+        {{ item.title }}
+      </v-btn>
+      <mu-button color="primary" @click="search()">点击搜索</mu-button>
       <p style="margin:0 0px 0 0px">热门标签:</p>
       <mu-chip
         class="demo-chip"
@@ -18,17 +21,14 @@
         :color="chip.type"
         style="margin:0 20px 0 0;"
         @click="chipsSearch(chip.name)"
-      >{{ chip.name }}</mu-chip>
+        >{{ chip.name }}</mu-chip
+      >
     </div>
 
     <!-- 左边歌单表 -->
     <div style="display:flex;padding: 20px 20px">
       <div class="s-l-table">
-        <mu-data-table
-          :columns="columns"
-          :data="song"
-          class="s-l-table-content"
-        >
+        <mu-data-table :columns="columns" :data="song" class="s-l-table-content">
           <template slot-scope="scope">
             <!-- <td class="is-left">{{ scope.row.songId }}</td> -->
             <td class="is-left">{{ scope.row.songName }}</td>
@@ -39,29 +39,14 @@
             <td class="is-right">{{ scope.row.createTime.slice(0, 10) }}</td>
           </template>
         </mu-data-table>
-        <mu-flex
-          justify-content="center"
-          v-if="show"
-        >
+        <mu-flex justify-content="center" v-if="show">
           <!-- 每页显示的数量 -->
           <span style="margin-top: 10px">每页显示：</span>
-          <mu-select
-            style="width:70px"
-            v-model="size"
-            full-widt
-          >
-            <mu-option
-              v-for="(option, index) in options"
-              :key="index"
-              :label="option"
-              :value="option"
-            ></mu-option>
+          <mu-select style="width:70px" v-model="size" full-widt>
+            <mu-option v-for="(option, index) in options" :key="index" :label="option" :value="option"></mu-option>
           </mu-select>
           <!-- 分页 -->
-          <mu-pagination
-            :total="totalPage"
-            :current.sync="currentPage"
-          ></mu-pagination>
+          <mu-pagination :total="totalPage" :current.sync="currentPage"></mu-pagination>
         </mu-flex>
       </div>
     </div>
@@ -70,15 +55,15 @@
 
 <script>
 const initChips = [
-  { id: 1, name: '薛之谦', type: 'secondary' },
-  { id: 2, name: '邓紫棋', type: 'success' },
-  { id: 3, name: '周深', type: 'info' },
-  { id: 4, name: '林俊杰', type: 'warning' },
-  { id: 5, name: '周杰伦', type: 'error' },
-  { id: 6, name: '李荣浩', type: 'primary' }
+  { id: 10, name: '薛之谦', type: 'secondary' },
+  { id: 11, name: '邓紫棋', type: 'success' },
+  { id: 12, name: '周深', type: 'info' },
+  { id: 13, name: '林俊杰', type: 'warning' },
+  { id: 14, name: '周杰伦', type: 'error' },
+  { id: 15, name: '李荣浩', type: 'primary' }
 ]
 export default {
-  name: 'MusicList',
+  name: 'music',
   data() {
     return {
       chips: [...initChips],
@@ -106,11 +91,26 @@ export default {
       typeChildSongList: [],
       keywords: '',
       show: true,
-      id: ''
+      id: '',
+      menuList: this.$store.state.menuList,
+      menus: []
     }
   },
   components: {},
   created() {
+    console.log(this.$options.name)
+    this.$store.commit('setMenuList', JSON.parse(localStorage.getItem('menuList')))
+    this.menuList = this.$store.state.menuList
+    for (let i = 0; i < this.menuList.length; i++) {
+      let parent = this.menuList[i]
+      for (let j = 0; j < parent.subMenus.length; j++) {
+        let child = this.menuList[i]
+        if (child.subMenus[j].path === this.$options.name) {
+          this.menus = child.subMenus[j].subMenus
+          console.log(JSON.stringify(this.menus))
+        }
+      }
+    }
     this.getSong()
     this.currentPage
     console.log('token的值' + this.token)
@@ -125,9 +125,36 @@ export default {
     }
   },
   methods: {
+    handleClick(title) {
+      if (title === '新增') {
+        this.add()
+      }
+      if (title === '搜索') {
+        this.search()
+      }
+      if (title === '导入') {
+        this.import()
+      }
+      if (title === '导出') {
+        this.export()
+      }
+    },
+    add() {
+      alert('新增歌曲')
+    },
+    export() {
+    this.axios.get(this.GLOBAL.baseUrl + '/song/export').then((res) => {
+        if (res.data.code === 1) {
+          alert('导出成功')
+        }
+      })
+    },
+    import() {
+      alert('导入歌曲')
+    },
     //获取歌曲
     getSong() {
-       let roleId = localStorage.getItem('roleId')
+      let roleId = localStorage.getItem('roleId')
       this.axios({
         method: 'get',
         url: this.GLOBAL.baseUrl + '/song/page?roleId=' + roleId,
@@ -151,7 +178,7 @@ export default {
     },
     //模糊查询歌单
     search() {
-             let roleId = localStorage.getItem('roleId')
+      let roleId = localStorage.getItem('roleId')
       this.axios({
         method: 'get',
         url: this.GLOBAL.baseUrl + '/song/blur?roleId=' + roleId,

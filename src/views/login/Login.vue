@@ -1,40 +1,87 @@
 <template>
-  <div class="bg">
-    <mu-container>
-      <mu-form ref="form" :model="validateForm" class="login-form">
-        <mu-form-item label="用户名" prop="username" :rules="usernameRules">
-          <mu-text-field v-model="validateForm.username" prop="username"></mu-text-field>
-        </mu-form-item>
-        <mu-form-item label="密码" prop="password" :rules="passwordRules">
-          <mu-text-field type="password" v-model="validateForm.password" prop="password"></mu-text-field>
-        </mu-form-item>
-        <mu-auto-complete label="提示输入内容" v-model="verifyCode"></mu-auto-complete>
-        <mu-button color="info" @click="getVerify()" v-if="vailiable">获取验证码</mu-button>
-        <img ref="image" alt="" v-if="!vailiable" @click="getVerify()" />
-        <mu-form-item prop="isAgree" :rules="argeeRules">
-          <mu-checkbox label="同意用户协议" v-model="validateForm.isAgree"></mu-checkbox>
-        </mu-form-item>
-        <mu-form-item>
-          <mu-button color="primary" @click="submit">提交</mu-button>
-          <mu-button @click="clear">重置</mu-button>
-        </mu-form-item>
-      </mu-form>
-      <mu-dialog title="Dialog" width="360" :open.sync="openSimple">
-        登录成功
-      </mu-dialog>
-    </mu-container>
+  <v-app class="bg">
+    <v-content>
+      <v-container class="fill-height" fluid v-if="!dialog">
+        <v-row align="center" justify="center" class="login">
+          <v-col cols="12" md="4">
+            <v-card class="elevation-12">
+              <v-toolbar color="cyan" dark flat>
+                <v-toolbar-title>云音乐后台登录</v-toolbar-title>
+                <v-spacer />
+                <v-btn icon large bottom>
+                  <v-icon>mdi-music</v-icon>
+                </v-btn>
+                <v-btn icon large right>
+                  <v-icon>mdi-codepen</v-icon>
+                </v-btn>
+              </v-toolbar>
+              <v-card-text>
+                <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-text-field v-model="name" :counter="13" :rules="nameRules" label="Name" required></v-text-field>
+                  <v-text-field v-model="password" :rules="passRules" label="Password" required></v-text-field>
+                  <v-row>
+                    <v-col cols="12" md="8">
+                      <v-text-field v-model="verifyCode" :rules="codeRules" label="verifyCode" required></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <img class="verify" @click.prevent="refresh" ref="codeImg" />
+                    </v-col>
+                  </v-row>
+                  <v-checkbox
+                    v-model="checkbox"
+                    :rules="[(v) => !!v || '同意才能继续!']"
+                    label="是否同意协议?"
+                    required
+                  ></v-checkbox>
+                  <v-card-actions class="justify-center">
+                    <v-btn :disabled="!valid" color="success" @click="submit">
+                      登录
+                    </v-btn>
+                    <v-btn color="deep-orange" dark @click="reset">
+                      重置
+                    </v-btn>
+                    <v-btn color="purple" dark @click="gitHub">
+                      GitHub
+                    </v-btn>
+                  </v-card-actions>
+                </v-form>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-content>
+
     <!--遮罩-->
-    <div class="mask" v-if="show">
-      <div class="dialog">
-        <h3>请选择要进入系统的角色</h3>
-        <div class="btn-wrapper">
-          <mu-button v-for="(role, index) in roles" :key="index" color="primary" class="btn" @click="gotoIndex(role.roleId)">
-            {{ role.roleName }}
-          </mu-button>
-        </div>
-      </div>
+    <!-- <div class="mask"></div> -->
+
+    <div class="mask">
+      <v-row justify="center">
+        <v-dialog v-model="dialog" persistent max-width="800" style="z-index:999">
+          <v-row class="fill-height" align="center" justify="center">
+            <template v-for="(role, i) in roles">
+              <v-col :key="i" cols="12" md="6">
+                <v-hover v-slot:default="{ hover }">
+                  <v-card :elevation="hover ? 12 : 2" :class="{ 'on-hover': hover }" class="my-card">
+                    <v-img src="../../assets/images/card.jpg" height="305px">
+                      <v-card-title class="title white--text">
+                        <v-card-actions justify="center" align="center">
+                          <v-btn class="mx-2" fab dark large color="pink" @click="gotoIndex(role.roleId)">
+                            <v-icon dark>mdi-heart</v-icon>
+                          </v-btn>
+                          {{ role.roleName }}
+                        </v-card-actions>
+                      </v-card-title>
+                    </v-img>
+                  </v-card>
+                </v-hover>
+              </v-col>
+            </template>
+          </v-row>
+        </v-dialog>
+      </v-row>
     </div>
-  </div>
+  </v-app>
 </template>
 
 <script>
@@ -42,110 +89,99 @@ export default {
   name: 'Login',
   data() {
     return {
-      usernameRules: [
-        { validate: (val) => !!val, message: '必须填写用户名' },
-        { validate: (val) => val.length >= 3, message: '用户名长度大于3' }
+      valid: true,
+      name: 'guoruichang',
+      nameRules: [(v) => !!v || 'Name is required', (v) => (v && v.length <= 13) || '用户名不能超过13位'],
+      password: '123456',
+      passRules: [
+        (v) => !!v || 'Pass is required',
+        (v) => (v.length >= 6 && v.length <= 10) || '密码必须在6到10位之间'
       ],
-      passwordRules: [
-        { validate: (val) => !!val, message: '必须填写密码' },
-        { validate: (val) => val.length >= 3 && val.length <= 10, message: '密码长度大于3小于10' }
-      ],
-      argeeRules: [{ validate: (val) => !!val, message: '必须同意用户协议' }],
-      validateForm: {
-        username: '',
-        password: '',
-        isAgree: false
-      },
       verifyCode: '',
-      vailiable: true,
-      show: false,
-      menuList: [],
+      codeRules: [(v) => !!v || '验证码不能为空', (v) => v.length == 4 || '验证码必须是4位字符 '],
+      checkbox: false,
+      dialog: false,
+      overlay: false,
       roles: []
     }
   },
   components: {},
-  created() {},
+  created() {
+    this.axios.get('/captcha?name=' + this.name, { responseType: 'blob' }).then((res) => {
+      let img = this.$refs.codeImg
+      let url = window.URL.createObjectURL(res.data)
+      img.src = url
+    })
+  },
   mounted() {},
   methods: {
-    //获取验证码
-    getVerify() {
-      this.vailiable = false
+    validate() {
+      this.$refs.form.validate()
+    },
+    reset() {
+      this.$refs.form.reset()
+    },
+    resetValidation() {
+      this.$refs.form.resetValidation()
+    },
+    submit() {
+      //表单验证通过
+      console.log('form valid: ')
+      //表单验证通过后才显示验证码
       this.axios({
-        method: 'get',
-        url: this.GLOBAL.baseUrl + '/captcha',
-        // 2、将请求数据转换为form-data格式
-        params: {
-          name: this.validateForm.username
-        },
-        // 3、设置请求头Content-Type
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        responseType: 'blob'
+        method: 'post',
+        url: '/sysAdmin/login',
+        data: {
+          name: this.name,
+          password: this.password,
+          verifyCode: this.verifyCode
+        }
       }).then((res) => {
-        let img = this.$refs.image
-        let url = window.URL.createObjectURL(res.data)
-        img.src = url
+        //登录成功
+        if (res.data.code === 1) {
+          //存token
+          localStorage.setItem('token', res.data.data.token)
+          this.$store.commit('setToken', res.data.data.token)
+          // let admin = {
+          //   id: res.data.data.admin.id,
+          //   name: res.data.data.admin.name,
+          //   password: '',
+          //   avatar: res.data.data.admin.avatar
+          // }
+          localStorage.setItem('id', res.data.data.admin.id)
+          localStorage.setItem('name', res.data.data.admin.name)
+          localStorage.setItem('avatar', res.data.data.admin.avatar)
+          this.$store.commit('setName', res.data.data.admin.name)
+          this.$store.commit('setAvatar', res.data.data.admin.avatar)
+          // localStorage.setItem('admin', JSON.stringify(admin))
+          // this.$store.commit('setAdmin', localStorage.getItem('admin'))
+          this.roles = res.data.data.admin.roles
+          //角色数量超过1个
+          if (this.roles.length > 1) {
+            //弹出遮罩层选择
+            this.overlay = true
+            this.dialog = true
+          } else {
+            //只有一个角色
+            const roleId = res.data.data.admin.roles[0].roleId
+            //将roleId存入全局
+            localStorage.setItem('roleId', roleId)
+            this.$router.push('/')
+          }
+        } else {
+          //登录失败
+          alert(res.data.msg)
+          //清空验证码文本框
+          this.verifyCode = ''
+        }
       })
     },
-    //登录
-    submit() {
-      this.$refs.form.validate().then((result) => {
-        console.log('form valid: ', result)
-        this.axios({
-          method: 'post',
-          url: this.GLOBAL.baseUrl + '/sysAdmin/login',
-          data: {
-            name: this.validateForm.username,
-            password: this.validateForm.password,
-            verifyCode: this.verifyCode
-          }
-        }).then((res) => {
-          if (res.data.code === 1) {
-            //存token
-            localStorage.setItem('token', res.data.data.token)
-            this.$store.commit('setToken', res.data.data.token)
-            let admin = {
-              id: res.data.data.admin.id,
-              name: res.data.data.admin.name,
-              roles: res.data.data.admin.roles,
-              avatar: res.data.data.admin.avatar
-            }
-            //存admin
-            localStorage.setItem('admin', JSON.stringify(admin))
-            this.$store.commit('setAdmin', JSON.stringify(admin))
-            this.roles = res.data.data.admin.roles
-            console.log(this.roles)
-            //角色数量超过1个,弹出选择框
-            if (this.roles.length > 1) {
-              //弹出遮罩层选择
-              alert('登录成功，你的角色不只一个，请选择')
-              //显示遮罩层，遮罩层按钮具体点击事件 gotoDashboard(roleId)
-              this.show = true
-            } else {
-              //只有一个角色
-              const roleId = res.data.data.admin.roles[0].roleId
-              localStorage.setItem('roleId', roleId)
-              alert(roleId)
-              this.$router.push({
-                path: '/',
-                query: {
-                  roleId: roleId
-                }
-              })
-            }
-          } else {
-            //登录失败
-            alert(res.data.msg)
-            //清空验证码文本框
-            this.verifyCode = ''
-          }
-        })
-        //模拟后端接口数据
-        // let user = {
-        //   userId: '2000100193',
-        //   username: 'taoranran',
-        //   userRole: 'admin',
-        //   avatar: 'https://avatars1.githubusercontent.com/u/42235689?s=60&u=b25100f60b66465b78fe97e36b2788715c216a6d&v=4'
-        // }
+    refresh() {
+      //点击验证码图片，重新请求，刷新
+      this.axios.get('/captcha?name=' + this.name, { responseType: 'blob' }).then((res) => {
+        let img = this.$refs.codeImg
+        let url = window.URL.createObjectURL(res.data)
+        img.src = url
       })
     },
     clear() {
@@ -157,63 +193,46 @@ export default {
       }
     },
     gotoIndex(roleId) {
-      //带着用户选择的roleId跳到首页
-      alert(roleId)
+      //将roleId存入本地存储
       localStorage.setItem('roleId', roleId)
-      this.$router.push({
-        path: '/',
-        query: {
-          roleId: roleId
-        }
-      })
+      this.$router.push('/')
+    },
+    gitHub() {
+      const authorize_uri = 'https://github.com/login/oauth/authorize'
+      const client_id = 'b5e339efee2001ce3dc8'
+      const redirect_uri = 'http://localhost:8080/oauth2/code/github'
+      window.location.href = `${authorize_uri}?client_id=${client_id}&redirect_uri=${redirect_uri}`
     }
-  }
+  },
+  computed: {}
 }
 </script>
 
 <style scoped lang="scss">
 .bg {
-  background-image: url('../../assets/images/loginBg.jpg');
+  background-image: url('https://niit-soft.oss-cn-hangzhou.aliyuncs.com/wallpaper/18.jpg');
+  background-size: 100% 100%;
   opacity: 0.8;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.login-form {
-  max-width: 500px;
-  margin-left: 300px;
-  background-color: #fff;
-  border-radius: 10px;
-  padding: 10px;
+  .login {
+    z-index: 9;
+  }
 }
 .mask {
-  z-index: 900;
   position: absolute;
   top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  .dialog {
-    z-index: 1000;
-    width: 400px;
-    height: 300px;
-    line-height: 100px;
-    background-color: #fff;
-    border-radius: 10px;
-    text-align: center;
-    padding-top: 50px;
-    .btn-wrapper {
-      margin-left: 60px;
-      display: flex;
-      .btn {
-        margin: 20px;
-      }
-    }
-  }
+  background-image: linear-gradient(to right, #bf30ac 0%, #0f9d58 100%);
+  opacity: 0.6;
+}
+.my-card {
+  transition: opacity 0.4s ease-in-out;
+}
+.my-card:not(.on-hover) {
+  opacity: 0.6;
+}
+.show-btns {
+  color: rgba(255, 255, 255, 1) !important;
 }
 </style>

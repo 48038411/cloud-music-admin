@@ -1,57 +1,37 @@
 <template>
-  <v-container>
-    <v-card max-width="375" class="mx-auto">
-      <v-img src="https://cdn.vuetifyjs.com/images/lists/ali.png" height="300px" dark>
-        <v-row class="fill-height">
-          <v-card-title>
-            <v-btn dark icon>
-              <v-icon>mdi-chevron-left</v-icon>
-            </v-btn>
+  <v-container class="animated fadeIn move ml-6 mr-6">
+    <v-card class="bottom-gradient">
+      <v-toolbar flat color="blue-grey" dark>
+        <v-toolbar-title>Cloud Music</v-toolbar-title>
+      </v-toolbar>
 
-            <v-spacer></v-spacer>
+      <v-card-text>
+        <v-text-field filled label="Title" value="My new post"></v-text-field>
 
-            <v-btn dark icon class="mr-4">
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
+        <v-textarea
+          filled
+          label="Text"
+          value="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse"
+        ></v-textarea>
 
-            <v-btn dark icon>
-              <v-icon>mdi-dots-vertical</v-icon>
-            </v-btn>
-          </v-card-title>
+        <v-divider class="my-2"></v-divider>
 
-          <v-spacer></v-spacer>
+        <v-item-group multiple>
+          <v-subheader>Tags</v-subheader>
+          <v-item v-for="n in 8" :key="n" v-slot:default="{ active, toggle }">
+            <v-chip active-class="purple--text" :input-value="active" @click="toggle"> Tag {{ n }} </v-chip>
+          </v-item>
+        </v-item-group>
+      </v-card-text>
 
-          <v-card-title class="white--text pl-12 pt-12">
-            <div class="display-1 pl-12 pt-12">mqxu</div>
-          </v-card-title>
-        </v-row>
-      </v-img>
+      <v-divider></v-divider>
 
-      <v-list two-line>
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon color="indigo">mdi-email</v-icon>
-          </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title>16422802@qq.com</v-list-item-title>
-            <v-list-item-subtitle>Mail</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-divider inset></v-divider>
-
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon color="indigo">mdi-map-marker</v-icon>
-          </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title>NIIT SCS</v-list-item-title>
-            <v-list-item-subtitle>Nanjing,Jiangsu</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn class="post">
+          Post
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-container>
 </template>
@@ -62,25 +42,16 @@ export default {
   data() {
     return {}
   },
-  components: {},
   created() {},
-  mounted() {},
-  methods: {},
-  computed: {}
+  methods: {}
 }
 </script>
 <style scoped lang="scss">
 .bottom-gradient {
-  background-image: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, transparent 72px);
+  margin-top: 10px;
+  background-image: linear-gradient(to right, rgba(110, 165, 180, 0.4) 100%, transparent 72px);
 }
-
-.repeating-gradient {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgba(255, 0, 0, 0.25),
-    rgba(255, 0, 0, 0.25) 5px,
-    rgba(0, 0, 255, 0.25) 5px,
-    rgba(0, 0, 255, 0.25) 10px
-  );
+.post {
+  background-color: rgb(73, 126, 86);
 }
 </style>
